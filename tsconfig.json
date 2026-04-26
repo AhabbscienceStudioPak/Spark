@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@gcw/shared-types": ["packages/shared-types/src/index.ts"],
+      "@gcw/shared-utils": ["packages/shared-utils/src/index.ts"],
+      "@gcw/ui-components": ["packages/ui-components/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build", ".next"]
+}

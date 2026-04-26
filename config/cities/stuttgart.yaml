@@ -1,0 +1,65 @@
+cityCode: stuttgart
+displayName: Stuttgart
+countryCode: DE
+defaultGeoFenceRadiusMeters: 500
+weatherSource: open-meteo
+eventsSource: overpass
+supportedMerchantCategories:
+  - cafe
+  - restaurant
+  - retail
+  - bakery
+  - bar
+  - gym
+
+# Composite context rules (Req 6.2: AND/OR/NOT operators)
+compositeRules:
+  - name: "Cold + Low Demand"
+    operator: AND
+    score: 40
+    conditions:
+      - { field: temperature, op: lt, value: 12 }
+      - { field: has_low_demand_merchant, op: is_true }
+
+  - name: "Lunch Rush + Low Demand"
+    operator: AND
+    score: 35
+    conditions:
+      - { field: time_of_day, op: eq, value: lunch }
+      - { field: has_low_demand_merchant, op: is_true }
+
+  - name: "Event Nearby"
+    operator: AND
+    score: 30
+    conditions:
+      - { field: has_active_event, op: is_true }
+
+  - name: "Rain + Any Merchant"
+    operator: AND
+    score: 20
+    conditions:
+      - { field: condition, op: in, value: [rain, snow, storm] }
+      - { field: has_low_demand_merchant, op: is_true }
+
+  - name: "NOT Weekend Night"
+    operator: NOT
+    score: 0
+    conditions:
+      - { field: time_of_day, op: eq, value: night }
+
+merchants:
+  - id: "merchant-001"
+    name: "Café Müller"
+    category: cafe
+    lat: 48.7758
+    lng: 9.1829
+  - id: "merchant-002"
+    name: "Bäckerei Schmidt"
+    category: bakery
+    lat: 48.7741
+    lng: 9.1801
+  - id: "merchant-003"
+    name: "Weinbar Alte Stadt"
+    category: bar
+    lat: 48.7769
+    lng: 9.1843

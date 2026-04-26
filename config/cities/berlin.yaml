@@ -1,0 +1,47 @@
+cityCode: berlin
+displayName: Berlin
+countryCode: DE
+defaultGeoFenceRadiusMeters: 600
+weatherSource: open-meteo
+eventsSource: overpass
+supportedMerchantCategories:
+  - cafe
+  - restaurant
+  - retail
+  - bakery
+  - bar
+  - gym
+  - pharmacy
+
+compositeRules:
+  - name: "Cold + Low Demand"
+    operator: AND
+    score: 40
+    conditions:
+      - { field: temperature, op: lt, value: 12 }
+      - { field: has_low_demand_merchant, op: is_true }
+
+  - name: "Lunch Rush"
+    operator: AND
+    score: 35
+    conditions:
+      - { field: time_of_day, op: eq, value: lunch }
+      - { field: has_low_demand_merchant, op: is_true }
+
+  - name: "Event Nearby"
+    operator: AND
+    score: 30
+    conditions:
+      - { field: has_active_event, op: is_true }
+
+merchants:
+  - id: "merchant-berlin-001"
+    name: "Café am Prenzlauer Berg"
+    category: cafe
+    lat: 52.5396
+    lng: 13.4127
+  - id: "merchant-berlin-002"
+    name: "Markthalle Neun"
+    category: retail
+    lat: 52.4994
+    lng: 13.4244

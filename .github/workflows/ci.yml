@@ -1,0 +1,160 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Python lint per service ───────────────────────────────────────────────
+  python-lint:
+    name: Lint & Typecheck (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [api-gateway, context-service, offer-service, checkout-service, notification-service]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install build deps (for bcrypt/asyncpg)
+        run: sudo apt-get install -y libpq-dev gcc
+
+      - name: Install service + shared deps
+        run: |
+          pip install ruff mypy
+          pip install -r services/${{ matrix.service }}/requirements.txt
+          pip install -e packages/shared-utils/
+
+      - name: Lint with ruff
+        run: ruff check services/${{ matrix.service }}/app/ --ignore E501
+
+      - name: Type check with mypy
+        run: mypy services/${{ matrix.service }}/app --ignore-missing-imports --no-error-summary
+
+  # ── Python tests ──────────────────────────────────────────────────────────
+  python-test:
+    name: Python Tests
+    runs-on: ubuntu-latest
+    needs: python-lint
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: gcw_test
+          POSTGRES_USER: gcw_user
+          POSTGRES_PASSWORD: test_password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://gcw_user:test_password@localhost:5432/gcw_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: test_secret_min_32_characters_long_xx
+      WEATHER_SOURCE: open-meteo
+      EVENTS_SOURCE: overpass
+      CITY_CONFIG_DIR: config/cities
+      OLLAMA_URL: http://localhost:11434
+      OLLAMA_MODEL: qwen3:1.7b
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install build deps
+        run: sudo apt-get install -y libpq-dev gcc
+
+      - name: Install all service deps
+        run: |
+          pip install pytest pytest-asyncio httpx anyio
+          for svc in api-gateway context-service offer-service checkout-service notification-service; do
+            pip install -r services/$svc/requirements.txt
+          done
+          pip install -e packages/shared-utils/
+
+      - name: Apply DB schema
+        run: |
+          PGPASSWORD=test_password psql \
+            -h localhost -U gcw_user -d gcw_test \
+            -f scripts/db-init.sql
+
+      - name: Run tests
+        run: pytest services/ packages/shared-utils/tests/ -v --tb=short -x
+
+  # ── Frontend typecheck ────────────────────────────────────────────────────
+  frontend-typecheck:
+    name: Frontend Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install root deps
+        run: npm install
+
+      - name: Typecheck merchant-web
+        run: |
+          cd apps/merchant-web
+          npm install
+          npx tsc --noEmit
+
+      - name: Typecheck mobile
+        run: |
+          cd apps/mobile
+          npm install
+          npx tsc --noEmit
+
+  # ── Docker builds (main branch only) ─────────────────────────────────────
+  build-docker:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [python-test, frontend-typecheck]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build api-gateway
+        run: docker build -f infrastructure/docker/api-gateway/Dockerfile -t gcw/api-gateway:${{ github.sha }} .
+
+      - name: Build context-service
+        run: docker build -f infrastructure/docker/context-service/Dockerfile -t gcw/context-service:${{ github.sha }} .
+
+      - name: Build offer-service
+        run: docker build -f infrastructure/docker/offer-service/Dockerfile -t gcw/offer-service:${{ github.sha }} .
+
+      - name: Build checkout-service
+        run: docker build -f infrastructure/docker/checkout-service/Dockerfile -t gcw/checkout-service:${{ github.sha }} .
+
+      - name: Build notification-service
+        run: docker build -f infrastructure/docker/notification-service/Dockerfile -t gcw/notification-service:${{ github.sha }} .

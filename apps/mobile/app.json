@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "City Wallet",
+    "slug": "generative-city-wallet",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#1A1A2E"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "de.dsv.citywallet",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "City Wallet uses your location to find nearby merchant offers.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "City Wallet uses your location to find nearby merchant offers."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1A1A2E"
+      },
+      "package": "de.dsv.citywallet",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "City Wallet uses your location to find nearby offers."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#2D6A4F"
+        }
+      ]
+    ],
+    "scheme": "citywallet",
+    "extra": {
+      "apiUrl": "http://192.168.10.5:3000",
+      "eas": {
+        "projectId": "your-project-id-from-eas-init"
+      }
+    }
+  }
+}

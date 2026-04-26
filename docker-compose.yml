@@ -1,0 +1,145 @@
+version: '3.9'
+
+services:
+  # ── Databases ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: gcw
+      POSTGRES_USER: gcw_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./scripts/db-seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gcw_user -d gcw"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Ollama (on-device LLM runtime) ─────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+
+  # ── Payone Simulator ───────────────────────────────────────────────────────
+  payone-simulator:
+    build:
+      context: ./infrastructure/docker/payone-simulator
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+
+  # ── Backend Services ───────────────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./infrastructure/docker/api-gateway/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=postgresql://gcw_user:${POSTGRES_PASSWORD}@postgres:5432/gcw
+      - CONTEXT_SERVICE_URL=http://context-service:3001
+      - OFFER_SERVICE_URL=http://offer-service:3002
+      - CHECKOUT_SERVICE_URL=http://checkout-service:3003
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3004
+    depends_on:
+      postgres:
+        condition: service_healthy
+      context-service:
+        condition: service_started
+      offer-service:
+        condition: service_started
+      checkout-service:
+        condition: service_started
+
+  context-service:
+    build:
+      context: .
+      dockerfile: ./infrastructure/docker/context-service/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - WEATHER_SOURCE=${WEATHER_SOURCE:-open-meteo}
+      - WEATHER_API_KEY=${WEATHER_API_KEY:-}
+      - EVENTS_SOURCE=${EVENTS_SOURCE:-overpass}
+      - EVENTBRITE_API_KEY=${EVENTBRITE_API_KEY:-}
+      - EVENTBRITE_PRIVATE_TOKEN=${EVENTBRITE_PRIVATE_TOKEN:-}
+      - HOLIDAY_COUNTRY_CODE=${HOLIDAY_COUNTRY_CODE:-DE}
+      - PAYONE_API_URL=http://payone-simulator:4000
+      - CITY_CONFIG_DIR=/app/config/cities
+    volumes:
+      - ./config:/app/config:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  offer-service:
+    build:
+      context: .
+      dockerfile: ./infrastructure/docker/offer-service/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - DATABASE_URL=postgresql://gcw_user:${POSTGRES_PASSWORD}@postgres:5432/gcw
+      - REDIS_URL=redis://redis:6379
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen3:1.7b}
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3004
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  checkout-service:
+    build:
+      context: .
+      dockerfile: ./infrastructure/docker/checkout-service/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - DATABASE_URL=postgresql://gcw_user:${POSTGRES_PASSWORD}@postgres:5432/gcw
+      - REDIS_URL=redis://redis:6379
+      - CASHBACK_MODE=${CASHBACK_MODE:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./infrastructure/docker/notification-service/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      - REDIS_URL=redis://redis:6379
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_models:

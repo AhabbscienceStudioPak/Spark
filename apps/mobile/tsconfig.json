@@ -1,0 +1,12 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@gcw/shared-types": ["./src/types/index.ts"],
+      "@gcw/shared-utils": ["./src/utils/index.ts"]
+    }
+  },
+  "include": ["src", "app.json"]
+}
