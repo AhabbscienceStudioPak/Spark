@@ -60,8 +60,8 @@ export function LocationFallback({ onCitySelected }: Props): ReactElement {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: spacing.xl, gap: spacing.md },
-  title: { fontSize: 24, fontWeight: '800', color: colors.text },
+  container: { padding: spacing.md, gap: spacing.md },
+  title: { fontSize: 22, fontWeight: '800', color: colors.text },
   subtitle: { fontSize: 14, color: colors.textMuted, lineHeight: 22 },
   searchInput: {
     backgroundColor: colors.surface,

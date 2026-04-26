@@ -1,6 +1,3 @@
-/**
- * Req 27.2: Non-intrusive banner showing active context signals and degraded sources.
- */
 import React from 'react';
 import type { ReactElement } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
@@ -19,21 +16,31 @@ const WEATHER_EMOJI: Record<string, string> = {
 export function ContextBanner({ context, degradedSources = [] }: ContextBannerProps): ReactElement {
   const { weather, time } = context;
   const hasDegraded = degradedSources.length > 0;
-  const timeOfDay = time.timeOfDay ?? time.time_of_day;
-  const dayType = time.dayType ?? time.day_type;
-  const hasNearbyEvent = context.events.some((e) => e.isActive ?? e.is_active);
+  const timeOfDay = time.timeOfDay ?? time.time_of_day ?? '';
+  const dayType = time.dayType ?? time.day_type ?? 'weekday';
+  const hasNearbyEvent = context.events?.some((e) => e.isActive ?? e.is_active);
+  const weatherEmoji = WEATHER_EMOJI[weather?.condition ?? ''] ?? '🌡️';
+  const temp = weather?.temperature != null ? `${Math.round(weather.temperature)}°C` : '';
+
+  const chips = [
+    temp ? `${weatherEmoji} ${temp}` : null,
+    timeOfDay ? timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1) : null,
+    dayType === 'holiday' ? '🎉 Holiday' : null,
+    hasNearbyEvent ? '🎭 Event' : null,
+  ].filter(Boolean) as string[];
 
   return (
     <View style={[styles.banner, hasDegraded && styles.bannerDegraded]}>
-      <Text style={styles.text} accessibilityRole="text">
-        {WEATHER_EMOJI[weather.condition] ?? '🌡️'} {Math.round(weather.temperature)}°C
-        {' · '}{timeOfDay.charAt(0).toUpperCase() + timeOfDay.slice(1)}
-        {' · '}{dayType === 'holiday' ? '🎉 Holiday' : dayType}
-        {hasNearbyEvent ? ' · 🎭 Event nearby' : ''}
-      </Text>
+      <View style={styles.chips}>
+        {chips.map((chip) => (
+          <View key={chip} style={styles.chip}>
+            <Text style={styles.chipText}>{chip}</Text>
+          </View>
+        ))}
+      </View>
       {hasDegraded && (
         <Text style={styles.degradedText}>
-          ⚠️ Reduced context: {degradedSources.join(', ')} unavailable
+          ⚠️ {degradedSources.join(', ')} unavailable
         </Text>
       )}
     </View>
@@ -42,16 +49,25 @@ export function ContextBanner({ context, degradedSources = [] }: ContextBannerPr
 
 const styles = StyleSheet.create({
   banner: {
-    backgroundColor: colors.surfaceMuted,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
     marginHorizontal: spacing.md,
     marginTop: spacing.md,
+    marginBottom: 4,
+    backgroundColor: colors.surface,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 10,
     borderWidth: 1,
     borderColor: colors.border,
+    gap: 6,
   },
   bannerDegraded: { backgroundColor: colors.warningSoft, borderColor: '#F5D38A' },
-  text: { fontSize: 13, color: colors.text, textAlign: 'center', fontWeight: '600' },
-  degradedText: { fontSize: 11, color: colors.warningText, textAlign: 'center', marginTop: 3, fontWeight: '600' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  chip: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  chipText: { fontSize: 12, color: colors.text, fontWeight: '600' },
+  degradedText: { fontSize: 11, color: colors.warningText, fontWeight: '600' },
 });

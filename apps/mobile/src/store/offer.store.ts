@@ -46,7 +46,7 @@ async function resolveMerchantName(
   // Fetch from API
   try {
     const res = await apiClient.get<{ data: { name: string; lat: number; lng: number } }>(
-      `/merchants/${merchantId}`,
+      `/api/v1/merchants/${merchantId}`,
     );
     const result = {
       name: res.data.data.name,
@@ -71,7 +71,7 @@ export const useOfferStore = create<OfferState>((set) => ({
       const consumerId = await localOfferStorage.getConsumerId();
       const prefs = await localOfferStorage.getPreferences();
 
-      const response = await apiClient.post<{ data: GeneratedOffer[] }>('/offers/generate', {
+      const response = await apiClient.post<{ data: GeneratedOffer[] }>('/api/v1/offers/generate', {
         context_state: context,
         consumer_id: consumerId,
         consumer_language: prefs.language ?? 'de',
@@ -104,7 +104,7 @@ export const useOfferStore = create<OfferState>((set) => ({
 
   acceptOffer: async (offerId) => {
     const consumerId = await localOfferStorage.getConsumerId();
-    await apiClient.post('/checkout/accept', { offer_id: offerId, consumer_id: consumerId });
+    await apiClient.post('/api/v1/checkout/accept', { offer_id: offerId, consumer_id: consumerId });
     set((state) => ({
       offers: state.offers.map((o) =>
         o.id === offerId ? { ...o, status: 'accepted' as const } : o,
@@ -117,7 +117,7 @@ export const useOfferStore = create<OfferState>((set) => ({
     // Store locally first (GDPR: on-device)
     await localOfferStorage.saveDismissal(offerId, reason);
     // Send abstract signal upstream (non-blocking)
-    apiClient.post('/checkout/dismiss', {
+    apiClient.post('/api/v1/checkout/dismiss', {
       offer_id: offerId,
       consumer_id: consumerId,
       reason,

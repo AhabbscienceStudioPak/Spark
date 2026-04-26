@@ -77,7 +77,7 @@ export const useContextStore = create<ContextState>((set, get) => ({
         cityCode = await reverseGeocode(lat, lng);
       }
 
-      const response = await apiClient.post<{ data: CompositeContextState }>('/context/aggregate', {
+      const response = await apiClient.post<{ data: CompositeContextState }>('/api/v1/context/aggregate', {
         lat, lng, city_code: cityCode,
       });
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { ReactElement } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { encodeQrPayload } from '../../utils/index';
 import { colors, radius, shadow, spacing } from '../../theme/tokens';
@@ -27,15 +27,13 @@ export function QRCodeDisplay({
   expiresAt,
 }: QRCodeDisplayProps): ReactElement {
   const [qrValue, setQrValue] = useState<string>('');
+  const { width } = useWindowDimensions();
+  const qrSize = Math.min(200, width - 96);
 
   const refreshQr = (): void => {
     const payload = encodeQrPayload({
-      t: token,
-      o: offerId,
-      m: merchantId,
-      d: discountPercentage,
-      exp: expiresAt,
-      ts: Date.now(),
+      t: token, o: offerId, m: merchantId,
+      d: discountPercentage, exp: expiresAt, ts: Date.now(),
     });
     setQrValue(payload);
   };
@@ -51,7 +49,7 @@ export function QRCodeDisplay({
       {qrValue ? (
         <QRCode
           value={qrValue}
-          size={220}
+          size={qrSize}
           backgroundColor={colors.surface}
           color={colors.text}
         />

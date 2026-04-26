@@ -1,18 +1,15 @@
-/**
- * Main offers screen.
- * Req 1.5: 15-min auto-refresh
- * Req 2.5: location-denied fallback
- * Req 27.2: degraded context banner
- */
 import React, { useEffect } from 'react';
 import type { ReactElement } from 'react';
-import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import {
+  View, FlatList, StyleSheet, Text, ActivityIndicator, StatusBar,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useOfferStore } from '../../store/offer.store';
 import { useContextStore } from '../../store/context.store';
 import { OfferCard } from '../../components/offers/OfferCard';
 import { ContextBanner } from '../../components/context/ContextBanner';
 import { LocationFallback } from '../../components/context/LocationFallback';
-import { colors, spacing } from '../../theme/tokens';
+import { colors, spacing, typography } from '../../theme/tokens';
 
 export default function OffersScreen(): ReactElement {
   const { offers, fetchOffers, isLoading: offersLoading } = useOfferStore();
@@ -28,32 +25,41 @@ export default function OffersScreen(): ReactElement {
   }, []);
 
   useEffect(() => {
-    if (contextState) {
-      void fetchOffers(contextState);
-    }
+    if (contextState) void fetchOffers(contextState);
   }, [contextState]);
 
-  // Req 2.5: show city selector when location is denied
   if (locationDenied) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <LocationFallback onCitySelected={setManualCity} />
-      </View>
+      </SafeAreaView>
     );
   }
 
   const isLoading = contextLoading || offersLoading;
 
   return (
-    <View style={styles.container}>
-      {/* Context banner (Req 27.2: shows degraded sources) */}
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerTitle}>🏙️ City Wallet</Text>
+          <Text style={styles.headerSub}>Offers near you, right now</Text>
+        </View>
+        {isLoading && <ActivityIndicator size="small" color={colors.primary} />}
+      </View>
+
+      {/* Context chips */}
       {contextState && (
         <ContextBanner context={contextState} degradedSources={degradedSources} />
       )}
 
+      {/* Loading skeleton */}
       {isLoading && !offers.length && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#2D6A4F" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Finding offers near you…</Text>
         </View>
       )}
@@ -61,14 +67,16 @@ export default function OffersScreen(): ReactElement {
       <FlatList
         data={offers}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <OfferCard offer={item as typeof item & { merchantName?: string }} />}
+        renderItem={({ item }) => (
+          <OfferCard offer={item as typeof item & { merchantName?: string }} />
+        )}
         ListEmptyComponent={
           !isLoading ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyEmoji}>🏙️</Text>
               <Text style={styles.emptyTitle}>No offers right now</Text>
               <Text style={styles.emptySub}>
-                Offers appear when nearby merchants have quiet periods. Check back soon.
+                Offers appear when nearby merchants have quiet periods. Pull down to refresh.
               </Text>
             </View>
           ) : null
@@ -76,18 +84,35 @@ export default function OffersScreen(): ReactElement {
         contentContainerStyle={styles.list}
         refreshing={isLoading}
         onRefresh={() => void refreshContext()}
+        showsVerticalScrollIndicator={false}
+        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  list: { padding: spacing.md, gap: 12, flexGrow: 1, paddingTop: spacing.sm },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 48 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: 4,
+  },
+  headerTitle: { fontSize: typography.h2, fontWeight: '900', color: colors.text },
+  headerSub: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
+  list: { padding: spacing.md, paddingTop: spacing.sm, flexGrow: 1 },
+  loadingContainer: {
+    flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 48,
+  },
   loadingText: { color: colors.textMuted, fontSize: 15, fontWeight: '600' },
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 48, gap: 12 },
-  emptyEmoji: { fontSize: 48 },
+  emptyContainer: {
+    flex: 1, justifyContent: 'center', alignItems: 'center',
+    padding: 48, gap: 12, minHeight: 300,
+  },
+  emptyEmoji: { fontSize: 52 },
   emptyTitle: { fontSize: 20, fontWeight: '800', color: colors.text, textAlign: 'center' },
   emptySub: { fontSize: 14, color: colors.textMuted, textAlign: 'center', lineHeight: 22 },
 });

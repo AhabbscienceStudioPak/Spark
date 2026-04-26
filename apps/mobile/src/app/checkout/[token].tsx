@@ -48,7 +48,7 @@ export default function CheckoutScreen(): ReactElement {
   const fetchToken = async (): Promise<void> => {
     try {
       const consumerId = await localOfferStorage.getConsumerId();
-      const response = await apiClient.post<{ data: TokenData }>('/checkout/accept', {
+      const response = await apiClient.post<{ data: TokenData }>('/api/v1/checkout/accept', {
         offer_id: offerId,
         consumer_id: consumerId,
       });
@@ -71,7 +71,7 @@ export default function CheckoutScreen(): ReactElement {
     setIsCompleting(true);
     setError(null);
     try {
-      const response = await apiClient.post<{ data: RedemptionResult }>('/checkout/complete', {
+      const response = await apiClient.post<{ data: RedemptionResult }>('/api/v1/checkout/complete', {
         token: tokenData.token,
         original_price: price,
       });
@@ -222,40 +222,41 @@ function ReceiptRow({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.xl, gap: spacing.lg, alignItems: 'center', paddingBottom: 48 },
+  content: { padding: spacing.md, gap: spacing.md, paddingBottom: 48 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 16 },
-  title: { fontSize: 22, fontWeight: '800', color: colors.text, textAlign: 'center' },
-  subtitle: { fontSize: 15, color: colors.textMuted, textAlign: 'center' },
-  priceSection: { width: '100%', gap: 12 },
+  title: { fontSize: 20, fontWeight: '800', color: colors.text, textAlign: 'center' },
+  subtitle: { fontSize: 14, color: colors.textMuted, textAlign: 'center' },
+  priceSection: { gap: 12 },
   priceLabel: { fontSize: 15, fontWeight: '700', color: colors.text },
   priceInput: {
     borderWidth: 2, borderColor: colors.primary, borderRadius: radius.sm,
-    padding: 16, fontSize: 24, fontWeight: '700', color: colors.text,
-    textAlign: 'center',
-    backgroundColor: colors.surface,
+    padding: 14, fontSize: 22, fontWeight: '700', color: colors.text,
+    textAlign: 'center', backgroundColor: colors.surface,
   },
   previewBox: {
-    backgroundColor: colors.surface, borderRadius: radius.sm, padding: 16, gap: 8, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.surface, borderRadius: radius.sm,
+    padding: 14, gap: 8, borderWidth: 1, borderColor: colors.border,
   },
   receiptBox: {
-    backgroundColor: colors.surface, borderRadius: radius.md, padding: 20, gap: 10, width: '100%',
-    borderWidth: 1,
-    borderColor: colors.border,
-    ...shadow.card,
+    backgroundColor: colors.surface, borderRadius: radius.md, padding: 18, gap: 10,
+    borderWidth: 1, borderColor: colors.border, ...shadow.card,
   },
-  receiptRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  receiptLabel: { fontSize: 15, color: colors.textMuted },
-  receiptValue: { fontSize: 15, color: colors.text, fontWeight: '600' },
+  receiptRow: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    alignItems: 'center', gap: 8,
+  },
+  receiptLabel: { fontSize: 14, color: colors.textMuted, flex: 1 },
+  receiptValue: { fontSize: 14, color: colors.text, fontWeight: '600', flexShrink: 0 },
   receiptHighlight: { color: colors.primary, fontWeight: '700' },
-  receiptBold: { fontWeight: '800', fontSize: 18, color: colors.text },
+  receiptBold: { fontWeight: '800', fontSize: 17, color: colors.text },
   receiptDivider: { height: 1, backgroundColor: colors.border, marginVertical: 4 },
   cashbackNote: { fontSize: 13, color: colors.primary, textAlign: 'center', marginTop: 4 },
   completeBtn: {
-    width: '100%', backgroundColor: colors.primary, borderRadius: radius.sm, padding: 18, alignItems: 'center',
+    backgroundColor: colors.primary, borderRadius: radius.sm, padding: 18, alignItems: 'center',
   },
-  completeBtnText: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
+  completeBtnText: { color: '#FFFFFF', fontSize: 17, fontWeight: '700' },
   disabled: { opacity: 0.5 },
-  cancelBtn: { padding: 12 },
+  cancelBtn: { padding: 12, alignItems: 'center' },
   cancelBtnText: { color: colors.textMuted, fontSize: 15 },
   loadingText: { color: colors.textMuted, fontSize: 15, marginTop: 12 },
   errorText: { color: colors.danger, fontSize: 14, textAlign: 'center' },
