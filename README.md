@@ -1,8 +1,14 @@
 # Generative City Wallet
 
-AI-powered mobile wallet that detects real-time context (weather, location, events, merchant demand) and dynamically generates personalized, time-sensitive local offers. Built for the DSV-Gruppe hackathon challenge.
+AI-powered mobile wallet that detects real-time context (weather, location, events, merchant demand) and dynamically generates personalized, time-sensitive local offers. Built for the DSV-Gruppe hackathon challenge. Submitted for the Hack-Nation 2026.
 
 ---
+
+## Team Member
+
+```
+* Adeel Mukhtar
+* M. Ahabb Sheraz
 
 ## Architecture
 
