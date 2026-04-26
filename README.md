@@ -6,7 +6,7 @@ AI-powered mobile wallet that detects real-time context (weather, location, even
 
 ## Team Member
 
-```
+
 * Adeel Mukhtar
 * M. Ahabb Sheraz
 
