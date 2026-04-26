@@ -4,6 +4,7 @@
  * Consumer enters the basket total; discount is applied dynamically.
  */
 import React, { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 import {
   View, Text, StyleSheet, Pressable, ActivityIndicator,
   ScrollView, TextInput, KeyboardAvoidingView, Platform,
@@ -12,6 +13,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { QRCodeDisplay } from '../../components/checkout/QRCodeDisplay';
 import { apiClient } from '../../services/api.client';
 import { localOfferStorage } from '../../services/local-storage.service';
+import { colors, radius, shadow, spacing } from '../../theme/tokens';
 
 interface TokenData {
   token: string;
@@ -29,7 +31,7 @@ interface RedemptionResult {
   cashback_credited: boolean;
 }
 
-export default function CheckoutScreen(): JSX.Element {
+export default function CheckoutScreen(): ReactElement {
   const { token: offerId } = useLocalSearchParams<{ token: string }>();
   const [tokenData, setTokenData] = useState<TokenData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -97,7 +99,7 @@ export default function CheckoutScreen(): JSX.Element {
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#2D6A4F" />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Generating your offer code…</Text>
       </View>
     );
@@ -219,44 +221,48 @@ function ReceiptRow({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
-  content: { padding: 24, gap: 20, alignItems: 'center', paddingBottom: 48 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.xl, gap: spacing.lg, alignItems: 'center', paddingBottom: 48 },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32, gap: 16 },
-  title: { fontSize: 22, fontWeight: '800', color: '#1A1A2E', textAlign: 'center' },
-  subtitle: { fontSize: 15, color: '#6C757D', textAlign: 'center' },
+  title: { fontSize: 22, fontWeight: '800', color: colors.text, textAlign: 'center' },
+  subtitle: { fontSize: 15, color: colors.textMuted, textAlign: 'center' },
   priceSection: { width: '100%', gap: 12 },
-  priceLabel: { fontSize: 15, fontWeight: '600', color: '#1A1A2E' },
+  priceLabel: { fontSize: 15, fontWeight: '700', color: colors.text },
   priceInput: {
-    borderWidth: 2, borderColor: '#2D6A4F', borderRadius: 12,
-    padding: 16, fontSize: 24, fontWeight: '700', color: '#1A1A2E',
+    borderWidth: 2, borderColor: colors.primary, borderRadius: radius.sm,
+    padding: 16, fontSize: 24, fontWeight: '700', color: colors.text,
     textAlign: 'center',
+    backgroundColor: colors.surface,
   },
   previewBox: {
-    backgroundColor: '#F8F9FA', borderRadius: 12, padding: 16, gap: 8,
+    backgroundColor: colors.surface, borderRadius: radius.sm, padding: 16, gap: 8, borderWidth: 1, borderColor: colors.border,
   },
   receiptBox: {
-    backgroundColor: '#F8F9FA', borderRadius: 16, padding: 20, gap: 10, width: '100%',
+    backgroundColor: colors.surface, borderRadius: radius.md, padding: 20, gap: 10, width: '100%',
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
   },
   receiptRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  receiptLabel: { fontSize: 15, color: '#6C757D' },
-  receiptValue: { fontSize: 15, color: '#1A1A2E', fontWeight: '600' },
-  receiptHighlight: { color: '#2D6A4F', fontWeight: '700' },
-  receiptBold: { fontWeight: '800', fontSize: 18, color: '#1A1A2E' },
-  receiptDivider: { height: 1, backgroundColor: '#DEE2E6', marginVertical: 4 },
-  cashbackNote: { fontSize: 13, color: '#2D6A4F', textAlign: 'center', marginTop: 4 },
+  receiptLabel: { fontSize: 15, color: colors.textMuted },
+  receiptValue: { fontSize: 15, color: colors.text, fontWeight: '600' },
+  receiptHighlight: { color: colors.primary, fontWeight: '700' },
+  receiptBold: { fontWeight: '800', fontSize: 18, color: colors.text },
+  receiptDivider: { height: 1, backgroundColor: colors.border, marginVertical: 4 },
+  cashbackNote: { fontSize: 13, color: colors.primary, textAlign: 'center', marginTop: 4 },
   completeBtn: {
-    width: '100%', backgroundColor: '#2D6A4F', borderRadius: 12, padding: 18, alignItems: 'center',
+    width: '100%', backgroundColor: colors.primary, borderRadius: radius.sm, padding: 18, alignItems: 'center',
   },
   completeBtnText: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
   disabled: { opacity: 0.5 },
   cancelBtn: { padding: 12 },
-  cancelBtnText: { color: '#6C757D', fontSize: 15 },
-  loadingText: { color: '#6C757D', fontSize: 15, marginTop: 12 },
-  errorText: { color: '#E63946', fontSize: 14, textAlign: 'center' },
+  cancelBtnText: { color: colors.textMuted, fontSize: 15 },
+  loadingText: { color: colors.textMuted, fontSize: 15, marginTop: 12 },
+  errorText: { color: colors.danger, fontSize: 14, textAlign: 'center' },
   successEmoji: { fontSize: 64 },
-  successTitle: { fontSize: 28, fontWeight: '800', color: '#2D6A4F' },
+  successTitle: { fontSize: 28, fontWeight: '800', color: colors.primary },
   doneBtn: {
-    backgroundColor: '#2D6A4F', borderRadius: 12, padding: 18,
+    backgroundColor: colors.primary, borderRadius: radius.sm, padding: 18,
     marginTop: 8, minWidth: 160, alignItems: 'center',
   },
   doneBtnText: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },

@@ -27,14 +27,14 @@ const merchantCache = new Map<string, { name: string; lat?: number; lng?: number
 
 async function resolveMerchantName(
   merchantId: string,
-  contextDensity: CompositeContextState['transactionDensity'],
+  contextDensity: CompositeContextState['transaction_density'] | undefined,
 ): Promise<{ name: string; lat?: number; lng?: number }> {
   if (merchantCache.has(merchantId)) {
     return merchantCache.get(merchantId)!;
   }
 
   // First try to get name from context density signals (already has walking distance)
-  const densitySignal = contextDensity?.find((d) => d.merchantId === merchantId);
+  const densitySignal = contextDensity?.find((d) => (d.merchantId ?? d.merchant_id) === merchantId);
   if (densitySignal && 'merchantName' in densitySignal) {
     const result = {
       name: (densitySignal as { merchantName?: string }).merchantName ?? 'Nearby Merchant',
@@ -84,8 +84,8 @@ export const useOfferStore = create<OfferState>((set) => ({
       const displayOffers: DisplayOffer[] = await Promise.all(
         rawOffers.map(async (offer) => {
           const merchant = await resolveMerchantName(
-            offer.merchantId,
-            context.transactionDensity,
+            offer.merchantId ?? offer.merchant_id,
+            context.transactionDensity ?? context.transaction_density,
           );
           return {
             ...offer,

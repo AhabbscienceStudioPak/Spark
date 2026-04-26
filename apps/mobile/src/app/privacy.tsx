@@ -3,8 +3,10 @@
  * Shows what data is processed locally vs sent to servers.
  */
 import React from 'react';
+import type { ReactElement } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { router } from 'expo-router';
+import { colors, radius, shadow, spacing, typography } from '../theme/tokens';
 
 interface DataItem {
   label: string;
@@ -23,7 +25,7 @@ const DATA_ITEMS: DataItem[] = [
   { label: 'Weather Context', location: 'server', description: 'City-level weather, not your exact location' },
 ];
 
-export default function PrivacyDashboard(): JSX.Element {
+export default function PrivacyDashboard(): ReactElement {
   const onDevice = DATA_ITEMS.filter((d) => d.location === 'on-device');
   const onServer = DATA_ITEMS.filter((d) => d.location === 'server');
 
@@ -96,35 +98,34 @@ export default function PrivacyDashboard(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FA' },
-  content: { padding: 16, gap: 16, paddingBottom: 48 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.md, gap: spacing.md, paddingBottom: 48 },
   backBtn: { paddingVertical: 8 },
-  backText: { color: '#2D6A4F', fontWeight: '600', fontSize: 15 },
-  title: { fontSize: 28, fontWeight: '800', color: '#1A1A2E' },
-  subtitle: { fontSize: 15, color: '#6C757D', lineHeight: 22 },
+  backText: { color: colors.primary, fontWeight: '700', fontSize: 15 },
+  title: { fontSize: typography.title, fontWeight: '800', color: colors.text },
+  subtitle: { fontSize: 15, color: colors.textMuted, lineHeight: 22 },
   section: {
-    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, gap: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06, shadowRadius: 4, elevation: 2,
+    backgroundColor: colors.surface, borderRadius: radius.md, padding: spacing.md, gap: 12,
+    borderWidth: 1, borderColor: colors.border, ...shadow.card,
   },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   sectionIcon: { fontSize: 20 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1A1A2E' },
-  sectionSub: { fontSize: 12, color: '#6C757D', marginTop: -8 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
+  sectionSub: { fontSize: 12, color: colors.textMuted, marginTop: -8 },
   item: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#F0F0F0',
+    paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.border,
   },
   itemLeft: { flex: 1, gap: 2 },
-  itemLabel: { fontSize: 14, fontWeight: '600', color: '#1A1A2E' },
-  itemDesc: { fontSize: 12, color: '#6C757D' },
+  itemLabel: { fontSize: 14, fontWeight: '600', color: colors.text },
+  itemDesc: { fontSize: 12, color: colors.textMuted },
   badge: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, marginLeft: 8 },
   localBadge: { backgroundColor: '#D1FAE5' },
   localBadgeText: { color: '#065F46', fontSize: 11, fontWeight: '700' },
   serverBadge: { backgroundColor: '#FEF3C7' },
   serverBadgeText: { color: '#92400E', fontSize: 11, fontWeight: '700' },
   gdprBox: {
-    backgroundColor: '#EFF6FF', borderRadius: 16, padding: 16, gap: 10,
+    backgroundColor: '#EFF6FF', borderRadius: radius.md, padding: spacing.md, gap: 10, borderWidth: 1, borderColor: '#BFDBFE',
   },
   gdprTitle: { fontSize: 15, fontWeight: '700', color: '#1E40AF' },
   gdprText: { fontSize: 13, color: '#3B82F6', lineHeight: 20 },

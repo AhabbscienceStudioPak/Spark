@@ -2,26 +2,43 @@
  * Expo push notification registration.
  * Registers the device token with the notification service after login.
  */
-import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { apiClient } from './api.client';
 import { localOfferStorage } from './local-storage.service';
 
-// Configure how notifications appear when app is in foreground
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+type NotificationsModule = typeof import('expo-notifications');
+
+let notificationsModulePromise: Promise<NotificationsModule> | null = null;
+
+async function getNotificationsModule(): Promise<NotificationsModule> {
+  if (!notificationsModulePromise) {
+    notificationsModulePromise = import('expo-notifications');
+  }
+  return notificationsModulePromise;
+}
 
 export async function registerPushToken(): Promise<void> {
   // Push notifications only work on physical devices
   if (!Device.isDevice) return;
+  // Expo Go (SDK 53+) no longer supports Android remote push token APIs.
+  if (Constants.appOwnership === 'expo') return;
 
   try {
+    const Notifications = await getNotificationsModule();
+
+    // Configure how notifications appear when app is in foreground.
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
 

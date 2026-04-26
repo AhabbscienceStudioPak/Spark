@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { formatCountdown } from '../../utils/index';
+import { colors } from '../../theme/tokens';
 
 interface CountdownTimerProps {
   expiresAt: string;
   compact?: boolean;
 }
 
-export function CountdownTimer({ expiresAt, compact = false }: CountdownTimerProps): JSX.Element {
+export function CountdownTimer({ expiresAt, compact = false }: CountdownTimerProps): ReactElement {
   const [secondsLeft, setSecondsLeft] = useState<number>(
     Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)),
   );
@@ -33,7 +35,7 @@ export function CountdownTimer({ expiresAt, compact = false }: CountdownTimerPro
 }
 
 const styles = StyleSheet.create({
-  timer: { fontSize: 13, color: '#6C757D' },
-  urgent: { color: '#E63946', fontWeight: '700' },
+  timer: { fontSize: 13, color: colors.textMuted, fontWeight: '600' },
+  urgent: { color: colors.danger, fontWeight: '800' },
   compact: { fontSize: 12 },
 });

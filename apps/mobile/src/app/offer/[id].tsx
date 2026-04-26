@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import type { ReactElement } from 'react';
 import {
   View, Text, StyleSheet, Pressable, ScrollView, Modal, Linking,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useOfferStore } from '../../store/offer.store';
 import { CountdownTimer } from '../../components/offers/CountdownTimer';
+import { colors, radius, shadow, spacing } from '../../theme/tokens';
 
 // Req 17.1: dismissal reason options
 const DISMISSAL_REASONS = [
@@ -16,7 +18,7 @@ const DISMISSAL_REASONS = [
 
 type DismissalKey = typeof DISMISSAL_REASONS[number]['key'];
 
-export default function OfferDetailScreen(): JSX.Element {
+export default function OfferDetailScreen(): ReactElement {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { offers, acceptOffer, dismissOffer } = useOfferStore();
   const offer = offers.find((o) => o.id === id) as (typeof offers[0] & { merchantName?: string; merchantLat?: number; merchantLng?: number }) | undefined;
@@ -55,8 +57,13 @@ export default function OfferDetailScreen(): JSX.Element {
     }
   };
 
-  const bgColor = offer.visualDesign?.backgroundColor ?? '#F8F9FA';
-  const primaryColor = offer.visualDesign?.primaryColor ?? '#2D6A4F';
+  const visual = offer.visualDesign ?? offer.visual_design;
+  const walkingMins = offer.walkingTimeMinutes ?? offer.walking_time_minutes;
+  const discount = offer.discountPercentage ?? offer.discount_percentage;
+  const expiresAt = offer.expiresAt ?? offer.expires_at;
+  const callToAction = offer.content.callToAction ?? offer.content.call_to_action;
+  const bgColor = visual?.backgroundColor ?? visual?.background_color ?? colors.bg;
+  const primaryColor = visual?.primaryColor ?? visual?.primary_color ?? colors.primary;
 
   return (
     <>
@@ -65,7 +72,7 @@ export default function OfferDetailScreen(): JSX.Element {
         <View style={styles.merchantRow}>
           <Text style={styles.merchantName}>{offer.merchantName ?? 'Nearby Merchant'}</Text>
           <Pressable onPress={openMaps} accessibilityRole="link" accessibilityLabel="Open in Maps">
-            <Text style={styles.mapLink}>🗺 {offer.walkingTimeMinutes} min walk</Text>
+            <Text style={styles.mapLink}>🗺 {walkingMins} min walk</Text>
           </Pressable>
         </View>
 
@@ -74,7 +81,7 @@ export default function OfferDetailScreen(): JSX.Element {
 
         {/* Discount — prominent (Req 14.1) */}
         <View style={[styles.discountBox, { backgroundColor: primaryColor }]}>
-          <Text style={styles.discountNumber}>{offer.discountPercentage}%</Text>
+          <Text style={styles.discountNumber}>{discount}%</Text>
           <Text style={styles.discountOff}>OFF</Text>
         </View>
 
@@ -84,7 +91,7 @@ export default function OfferDetailScreen(): JSX.Element {
         {/* Expiry countdown — prominent (Req 14.3, 26.3) */}
         <View style={styles.expiryRow}>
           <Text style={styles.expiryLabel}>⏱ Valid for:</Text>
-          <CountdownTimer expiresAt={offer.expiresAt} />
+          <CountdownTimer expiresAt={expiresAt} />
         </View>
 
         {/* Accept button (Req 16.1) */}
@@ -93,10 +100,10 @@ export default function OfferDetailScreen(): JSX.Element {
           onPress={handleAccept}
           disabled={isAccepting}
           accessibilityRole="button"
-          accessibilityLabel={offer.content.callToAction}
+          accessibilityLabel={callToAction}
         >
           <Text style={styles.acceptText}>
-            {isAccepting ? 'Generating code…' : offer.content.callToAction}
+            {isAccepting ? 'Generating code…' : callToAction}
           </Text>
         </Pressable>
 
@@ -148,40 +155,41 @@ export default function OfferDetailScreen(): JSX.Element {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { padding: 24, gap: 16, paddingBottom: 48 },
-  notFound: { padding: 32, textAlign: 'center', color: '#6C757D', fontSize: 16 },
+  content: { padding: spacing.xl, gap: spacing.md, paddingBottom: 48 },
+  notFound: { padding: 32, textAlign: 'center', color: colors.textMuted, fontSize: 16 },
   backBtn: { margin: 24, padding: 12, alignItems: 'center' },
-  backBtnText: { color: '#2D6A4F', fontWeight: '600' },
+  backBtnText: { color: colors.primary, fontWeight: '700' },
   merchantRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  merchantName: { fontSize: 14, fontWeight: '600', color: '#6C757D' },
-  mapLink: { fontSize: 13, color: '#2D6A4F', fontWeight: '600' },
-  headline: { fontSize: 26, fontWeight: '800', color: '#1A1A2E', lineHeight: 32 },
+  merchantName: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
+  mapLink: { fontSize: 13, color: colors.primary, fontWeight: '700' },
+  headline: { fontSize: 26, fontWeight: '800', color: colors.text, lineHeight: 32 },
   discountBox: {
-    borderRadius: 16, padding: 20, alignItems: 'center',
+    borderRadius: radius.md, padding: 20, alignItems: 'center',
     flexDirection: 'row', justifyContent: 'center', gap: 8,
+    ...shadow.card,
   },
   discountNumber: { color: '#FFFFFF', fontSize: 56, fontWeight: '900', lineHeight: 60 },
   discountOff: { color: '#FFFFFF', fontSize: 20, fontWeight: '700', alignSelf: 'flex-end', paddingBottom: 8 },
-  description: { fontSize: 16, color: '#495057', lineHeight: 26 },
+  description: { fontSize: 16, color: colors.text, lineHeight: 26 },
   expiryRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  expiryLabel: { fontSize: 14, color: '#6C757D' },
-  acceptButton: { borderRadius: 14, padding: 18, alignItems: 'center' },
+  expiryLabel: { fontSize: 14, color: colors.textMuted },
+  acceptButton: { borderRadius: radius.md, padding: 18, alignItems: 'center' },
   acceptText: { color: '#FFFFFF', fontSize: 18, fontWeight: '800' },
   disabled: { opacity: 0.6 },
   dismissButton: { padding: 12, alignItems: 'center' },
-  dismissText: { color: '#ADB5BD', fontSize: 14 },
+  dismissText: { color: colors.textMuted, fontSize: 14 },
   // Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   modalSheet: {
-    backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24,
     padding: 24, gap: 10,
   },
-  modalTitle: { fontSize: 18, fontWeight: '800', color: '#1A1A2E' },
-  modalSub: { fontSize: 13, color: '#6C757D', marginBottom: 4 },
+  modalTitle: { fontSize: 18, fontWeight: '800', color: colors.text },
+  modalSub: { fontSize: 13, color: colors.textMuted, marginBottom: 4 },
   reasonBtn: {
-    backgroundColor: '#F8F9FA', borderRadius: 12, padding: 16,
+    backgroundColor: colors.bg, borderRadius: radius.sm, padding: 16,
   },
-  reasonText: { fontSize: 15, color: '#1A1A2E', fontWeight: '500' },
+  reasonText: { fontSize: 15, color: colors.text, fontWeight: '600' },
   skipBtn: { padding: 12, alignItems: 'center' },
-  skipText: { color: '#ADB5BD', fontSize: 14 },
+  skipText: { color: colors.textMuted, fontSize: 14 },
 });

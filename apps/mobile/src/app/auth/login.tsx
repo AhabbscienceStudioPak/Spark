@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import type { ReactElement } from 'react';
 import {
   View, Text, TextInput, Pressable, StyleSheet,
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuthStore } from '../../store/auth.store';
+import { colors, radius, shadow, spacing } from '../../theme/tokens';
 
-export default function LoginScreen(): JSX.Element {
+export default function LoginScreen(): ReactElement {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -56,7 +58,7 @@ export default function LoginScreen(): JSX.Element {
               autoCapitalize="none"
               autoComplete="email"
               placeholder="you@example.com"
-              placeholderTextColor="#ADB5BD"
+              placeholderTextColor={colors.textMuted}
               accessibilityLabel="Email address"
             />
           </View>
@@ -71,7 +73,7 @@ export default function LoginScreen(): JSX.Element {
                 secureTextEntry={!showPassword}
                 autoComplete="password"
                 placeholder="••••••••"
-                placeholderTextColor="#ADB5BD"
+                placeholderTextColor={colors.textMuted}
                 accessibilityLabel="Password"
                 onSubmitEditing={handleLogin}
                 returnKeyType="go"
@@ -127,50 +129,54 @@ export default function LoginScreen(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#F8F9FA' },
-  container: { flexGrow: 1, padding: 24, justifyContent: 'center', gap: 24 },
+  flex: { flex: 1, backgroundColor: colors.bg },
+  container: { flexGrow: 1, padding: spacing.xl, justifyContent: 'center', gap: spacing.xl },
   hero: { alignItems: 'center', gap: 8 },
   logo: { fontSize: 64 },
-  appName: { fontSize: 32, fontWeight: '900', color: '#1A1A2E' },
-  tagline: { fontSize: 15, color: '#6C757D' },
+  appName: { fontSize: 32, fontWeight: '900', color: colors.text },
+  tagline: { fontSize: 15, color: colors.textMuted },
   form: {
-    backgroundColor: '#FFFFFF', borderRadius: 20, padding: 24, gap: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
   },
-  formTitle: { fontSize: 22, fontWeight: '800', color: '#1A1A2E' },
-  errorBox: { backgroundColor: '#FFF0F0', borderRadius: 10, padding: 12 },
-  errorText: { color: '#E63946', fontSize: 14, fontWeight: '500' },
+  formTitle: { fontSize: 22, fontWeight: '800', color: colors.text },
+  errorBox: { backgroundColor: colors.dangerSoft, borderRadius: radius.sm, padding: 12 },
+  errorText: { color: colors.danger, fontSize: 14, fontWeight: '600' },
   field: { gap: 6 },
-  label: { fontSize: 14, fontWeight: '600', color: '#495057' },
+  label: { fontSize: 14, fontWeight: '700', color: colors.text },
   input: {
-    borderWidth: 1.5, borderColor: '#DEE2E6', borderRadius: 12,
-    padding: 14, fontSize: 16, color: '#1A1A2E', backgroundColor: '#FAFAFA',
+    borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.sm,
+    padding: 14, fontSize: 16, color: colors.text, backgroundColor: colors.surfaceMuted,
   },
   passwordRow: { flexDirection: 'row', alignItems: 'center' },
   passwordInput: { flex: 1, borderTopRightRadius: 0, borderBottomRightRadius: 0 },
   eyeBtn: {
-    borderWidth: 1.5, borderLeftWidth: 0, borderColor: '#DEE2E6',
-    borderTopRightRadius: 12, borderBottomRightRadius: 12,
-    padding: 14, backgroundColor: '#FAFAFA',
+    borderWidth: 1.5, borderLeftWidth: 0, borderColor: colors.border,
+    borderTopRightRadius: radius.sm, borderBottomRightRadius: radius.sm,
+    padding: 14, backgroundColor: colors.surfaceMuted,
   },
   eyeIcon: { fontSize: 18 },
   loginBtn: {
-    backgroundColor: '#2D6A4F', borderRadius: 14, padding: 16,
+    backgroundColor: colors.primary, borderRadius: radius.md, padding: 16,
     alignItems: 'center', marginTop: 4,
   },
   loginBtnText: { color: '#FFFFFF', fontSize: 17, fontWeight: '800' },
   disabled: { opacity: 0.5 },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: '#E9ECEF' },
-  dividerText: { color: '#ADB5BD', fontSize: 13 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { color: colors.textMuted, fontSize: 13 },
   registerBtn: {
-    borderWidth: 1.5, borderColor: '#2D6A4F', borderRadius: 14,
+    borderWidth: 1.5, borderColor: colors.primary, borderRadius: radius.md,
     padding: 14, alignItems: 'center',
   },
-  registerBtnText: { color: '#2D6A4F', fontSize: 16, fontWeight: '700' },
+  registerBtnText: { color: colors.primary, fontSize: 16, fontWeight: '700' },
   demoBox: {
-    backgroundColor: '#EFF6FF', borderRadius: 12, padding: 14, gap: 4,
+    backgroundColor: '#EFF6FF', borderRadius: radius.sm, padding: 14, gap: 4, borderWidth: 1, borderColor: '#BFDBFE',
   },
   demoTitle: { fontSize: 12, fontWeight: '700', color: '#1E40AF', textTransform: 'uppercase' },
   demoText: { fontSize: 13, color: '#3B82F6', fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },

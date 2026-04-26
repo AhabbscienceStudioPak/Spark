@@ -32,7 +32,9 @@ export interface LocationSignal {
 export interface TimeSignal {
   local_time: ISODateString;
   time_of_day: TimeOfDay;
+  timeOfDay?: TimeOfDay;
   day_type: DayType;
+  dayType?: DayType;
   day_of_week: number;
   is_holiday: boolean;
 }
@@ -45,16 +47,19 @@ export interface EventSignal {
   estimated_attendance: number;
   distance_meters: number;
   is_active: boolean;
+  isActive?: boolean;
 }
 
 export interface TransactionDensitySignal {
   merchant_id: string;
+  merchantId?: string;
   current_density: number;
   typical_density: number;
   density_ratio: number;
   is_low_demand: boolean;
   walking_distance_meters?: number;
   walking_time_minutes?: number;
+  walkingTimeMinutes?: number;
   updated_at: ISODateString;
 }
 
@@ -65,6 +70,7 @@ export interface CompositeContextState {
   time: TimeSignal;
   events: EventSignal[];
   transaction_density: TransactionDensitySignal[];
+  transactionDensity?: TransactionDensitySignal[];
   relevance_score: number;
   triggered_at: ISODateString;
 }
@@ -77,13 +83,16 @@ export interface OfferContent {
   headline: string;
   description: string;
   call_to_action: string;
+  callToAction?: string;
   language: SupportedLanguage;
 }
 
 export interface OfferVisualDesign {
   primary_color: string;
+  primaryColor?: string;
   secondary_color: string;
   background_color?: string;
+  backgroundColor?: string;
   background_style: 'warm' | 'cool' | 'energetic' | 'calm' | 'festive';
   imagery_keywords: string[];
   layout_style: 'compact' | 'expanded' | 'banner';
@@ -93,16 +102,21 @@ export interface OfferVisualDesign {
 export interface GeneratedOffer {
   id: UUID;
   merchant_id: UUID;
+  merchantId?: UUID;
   consumer_id?: string;
   context_state_id: UUID;
   content: OfferContent;
   visual_design: OfferVisualDesign;
+  visualDesign?: OfferVisualDesign;
   discount_percentage: number;
+  discountPercentage?: number;
   expires_at: ISODateString;
+  expiresAt?: ISODateString;
   status: OfferStatus;
   relevance_score: number;
   walking_distance_meters: number;
   walking_time_minutes: number;
+  walkingTimeMinutes?: number;
   generated_at: ISODateString;
   generation_model: string;
 }

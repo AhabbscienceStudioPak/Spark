@@ -4,11 +4,13 @@
  * Req 23.3: total savings. Req 23.4: filter by date range + status.
  */
 import React, { useEffect, useState, useCallback } from 'react';
+import type { ReactElement } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable,
   Modal, ScrollView,
 } from 'react-native';
 import * as SQLite from 'expo-sqlite';
+import { colors, radius, shadow, spacing } from '../../theme/tokens';
 
 interface HistoryEntry {
   offer_id: string;
@@ -40,7 +42,7 @@ function MonthYearPicker({
   value: Date | null;
   onSelect: (d: Date) => void;
   onClose: () => void;
-}): JSX.Element {
+}): ReactElement {
   const now = new Date();
   const [year, setYear] = useState(value?.getFullYear() ?? now.getFullYear());
 
@@ -95,7 +97,7 @@ function MonthYearPicker({
   );
 }
 
-export default function HistoryScreen(): JSX.Element {
+export default function HistoryScreen(): ReactElement {
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all');
   const [totalSavings, setTotalSavings] = useState(0);
@@ -248,52 +250,60 @@ export default function HistoryScreen(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FA' },
-  header: { padding: 16, paddingBottom: 8 },
-  title: { fontSize: 24, fontWeight: '800', color: '#1A1A2E' },
-  savings: { fontSize: 14, color: '#2D6A4F', fontWeight: '600', marginTop: 4 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  header: { padding: spacing.md, paddingBottom: 8 },
+  title: { fontSize: 24, fontWeight: '800', color: colors.text },
+  savings: { fontSize: 14, color: colors.primary, fontWeight: '700', marginTop: 4 },
   filterScroll: { maxHeight: 44 },
-  filterRow: { paddingHorizontal: 16, gap: 8, paddingBottom: 8 },
-  filterTab: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, backgroundColor: '#E9ECEF' },
-  filterTabActive: { backgroundColor: '#2D6A4F' },
-  filterText: { fontSize: 13, color: '#6C757D', fontWeight: '600' },
+  filterRow: { paddingHorizontal: spacing.md, gap: 8, paddingBottom: 8 },
+  filterTab: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: colors.surfaceMuted },
+  filterTabActive: { backgroundColor: colors.primary },
+  filterText: { fontSize: 13, color: colors.textMuted, fontWeight: '700' },
   filterTextActive: { color: '#FFFFFF' },
-  dateRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 8, marginBottom: 4 },
-  dateBtn: { flex: 1, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DEE2E6' },
-  dateBtnActive: { borderColor: '#2D6A4F', backgroundColor: '#F0FFF4' },
-  dateBtnText: { fontSize: 13, color: '#6C757D', textAlign: 'center' },
-  dateBtnTextActive: { color: '#2D6A4F', fontWeight: '600' },
-  dateSep: { color: '#ADB5BD', fontSize: 14 },
-  clearBtn: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: 10, backgroundColor: '#FFF0F0' },
-  clearBtnText: { fontSize: 13, color: '#E63946', fontWeight: '700' },
-  filterSummary: { fontSize: 12, color: '#6C757D', paddingHorizontal: 16, marginBottom: 4 },
-  list: { padding: 16, gap: 10, flexGrow: 1 },
-  card: { backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16, gap: 8, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+  dateRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.md, gap: 8, marginBottom: 4 },
+  dateBtn: { flex: 1, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.sm, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  dateBtnActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
+  dateBtnText: { fontSize: 13, color: colors.textMuted, textAlign: 'center' },
+  dateBtnTextActive: { color: colors.primary, fontWeight: '700' },
+  dateSep: { color: colors.textMuted, fontSize: 14 },
+  clearBtn: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: radius.sm, backgroundColor: colors.dangerSoft },
+  clearBtnText: { fontSize: 13, color: colors.danger, fontWeight: '800' },
+  filterSummary: { fontSize: 12, color: colors.textMuted, paddingHorizontal: spacing.md, marginBottom: 4 },
+  list: { padding: spacing.md, gap: spacing.sm, flexGrow: 1 },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
+  },
   cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  merchantName: { fontSize: 16, fontWeight: '700', color: '#1A1A2E', flex: 1 },
-  discount: { fontSize: 16, fontWeight: '800', color: '#E63946' },
+  merchantName: { fontSize: 16, fontWeight: '700', color: colors.text, flex: 1 },
+  discount: { fontSize: 16, fontWeight: '800', color: colors.danger },
   cardBottom: { flexDirection: 'row', justifyContent: 'space-between' },
-  statusText: { fontSize: 13, color: '#495057' },
-  dateText: { fontSize: 13, color: '#6C757D' },
-  redeemedAt: { fontSize: 12, color: '#2D6A4F' },
+  statusText: { fontSize: 13, color: colors.text },
+  dateText: { fontSize: 13, color: colors.textMuted },
+  redeemedAt: { fontSize: 12, color: colors.primary, fontWeight: '700' },
   emptyContainer: { flex: 1, alignItems: 'center', paddingTop: 64, gap: 8 },
   emptyEmoji: { fontSize: 40 },
-  empty: { textAlign: 'center', color: '#6C757D', fontSize: 15 },
+  empty: { textAlign: 'center', color: colors.textMuted, fontSize: 15, fontWeight: '600' },
   // Month picker modal
   pickerOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
-  pickerSheet: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 16 },
-  pickerTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A2E', textAlign: 'center' },
+  pickerSheet: { backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 16 },
+  pickerTitle: { fontSize: 18, fontWeight: '700', color: colors.text, textAlign: 'center' },
   yearRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24 },
-  yearBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#E9ECEF', alignItems: 'center', justifyContent: 'center' },
-  yearBtnText: { fontSize: 22, color: '#1A1A2E', fontWeight: '700' },
-  yearText: { fontSize: 20, fontWeight: '800', color: '#1A1A2E', minWidth: 60, textAlign: 'center' },
+  yearBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceMuted, alignItems: 'center', justifyContent: 'center' },
+  yearBtnText: { fontSize: 22, color: colors.text, fontWeight: '700' },
+  yearText: { fontSize: 20, fontWeight: '800', color: colors.text, minWidth: 60, textAlign: 'center' },
   monthGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
-  monthBtn: { width: 72, paddingVertical: 10, borderRadius: 10, backgroundColor: '#F8F9FA', alignItems: 'center' },
-  monthBtnActive: { backgroundColor: '#2D6A4F' },
+  monthBtn: { width: 72, paddingVertical: 10, borderRadius: radius.sm, backgroundColor: colors.bg, alignItems: 'center' },
+  monthBtnActive: { backgroundColor: colors.primary },
   monthBtnDisabled: { opacity: 0.3 },
-  monthText: { fontSize: 14, fontWeight: '600', color: '#1A1A2E' },
+  monthText: { fontSize: 14, fontWeight: '600', color: colors.text },
   monthTextActive: { color: '#FFFFFF' },
-  monthTextDisabled: { color: '#ADB5BD' },
-  pickerClose: { backgroundColor: '#E9ECEF', borderRadius: 12, padding: 14, alignItems: 'center' },
-  pickerCloseText: { fontSize: 15, fontWeight: '600', color: '#495057' },
+  monthTextDisabled: { color: colors.textMuted },
+  pickerClose: { backgroundColor: colors.surfaceMuted, borderRadius: 12, padding: 14, alignItems: 'center' },
+  pickerCloseText: { fontSize: 15, fontWeight: '700', color: colors.text },
 });

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { encodeQrPayload } from '../../utils/index';
+import { colors, radius, shadow, spacing } from '../../theme/tokens';
 
 interface QRCodeDisplayProps {
   token: string;
@@ -23,7 +25,7 @@ export function QRCodeDisplay({
   merchantId,
   discountPercentage,
   expiresAt,
-}: QRCodeDisplayProps): JSX.Element {
+}: QRCodeDisplayProps): ReactElement {
   const [qrValue, setQrValue] = useState<string>('');
 
   const refreshQr = (): void => {
@@ -50,8 +52,8 @@ export function QRCodeDisplay({
         <QRCode
           value={qrValue}
           size={220}
-          backgroundColor="#FFFFFF"
-          color="#1A1A2E"
+          backgroundColor={colors.surface}
+          color={colors.text}
         />
       ) : null}
       <Text style={styles.hint}>Show this code to the merchant</Text>
@@ -61,7 +63,16 @@ export function QRCodeDisplay({
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center', gap: 12, padding: 24 },
-  hint: { fontSize: 16, color: '#495057', fontWeight: '600' },
-  refreshNote: { fontSize: 12, color: '#ADB5BD' },
+  container: {
+    alignItems: 'center',
+    gap: 12,
+    padding: spacing.xl,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
+  },
+  hint: { fontSize: 16, color: colors.text, fontWeight: '700' },
+  refreshNote: { fontSize: 12, color: colors.textMuted },
 });

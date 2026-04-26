@@ -5,14 +5,16 @@
  * Req 27.2: degraded context banner
  */
 import React, { useEffect } from 'react';
+import type { ReactElement } from 'react';
 import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-native';
 import { useOfferStore } from '../../store/offer.store';
 import { useContextStore } from '../../store/context.store';
 import { OfferCard } from '../../components/offers/OfferCard';
 import { ContextBanner } from '../../components/context/ContextBanner';
 import { LocationFallback } from '../../components/context/LocationFallback';
+import { colors, spacing } from '../../theme/tokens';
 
-export default function OffersScreen(): JSX.Element {
+export default function OffersScreen(): ReactElement {
   const { offers, fetchOffers, isLoading: offersLoading } = useOfferStore();
   const {
     contextState, refreshContext, isLoading: contextLoading,
@@ -80,12 +82,12 @@ export default function OffersScreen(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FA' },
-  list: { padding: 16, gap: 12, flexGrow: 1 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  list: { padding: spacing.md, gap: 12, flexGrow: 1, paddingTop: spacing.sm },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12, padding: 48 },
-  loadingText: { color: '#6C757D', fontSize: 15 },
+  loadingText: { color: colors.textMuted, fontSize: 15, fontWeight: '600' },
   emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 48, gap: 12 },
   emptyEmoji: { fontSize: 48 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A2E', textAlign: 'center' },
-  emptySub: { fontSize: 14, color: '#6C757D', textAlign: 'center', lineHeight: 22 },
+  emptyTitle: { fontSize: 20, fontWeight: '800', color: colors.text, textAlign: 'center' },
+  emptySub: { fontSize: 14, color: colors.textMuted, textAlign: 'center', lineHeight: 22 },
 });

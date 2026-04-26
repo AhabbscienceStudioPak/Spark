@@ -4,11 +4,13 @@
  * falls back to local estimate from SQLite.
  */
 import React, { useEffect, useState, useCallback } from 'react';
+import type { ReactElement } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, RefreshControl } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import { router } from 'expo-router';
 import { apiClient } from '../../services/api.client';
 import { localOfferStorage } from '../../services/local-storage.service';
+import { colors, radius, shadow, spacing } from '../../theme/tokens';
 
 interface WalletEntry {
   offer_id: string;
@@ -19,7 +21,7 @@ interface WalletEntry {
   status: string;
 }
 
-export default function WalletScreen(): JSX.Element {
+export default function WalletScreen(): ReactElement {
   const [entries, setEntries] = useState<WalletEntry[]>([]);
   const [balance, setBalance] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
@@ -57,9 +59,9 @@ export default function WalletScreen(): JSX.Element {
   };
 
   const statusColor = (status: string): string => {
-    if (status === 'redeemed') return '#2D6A4F';
-    if (status === 'accepted') return '#E8A87C';
-    return '#ADB5BD';
+    if (status === 'redeemed') return colors.primary;
+    if (status === 'accepted') return colors.accent;
+    return colors.textMuted;
   };
 
   const activeOffers = entries.filter((e) => e.status === 'accepted');
@@ -114,29 +116,37 @@ export default function WalletScreen(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FA' },
+  container: { flex: 1, backgroundColor: colors.bg },
   balanceCard: {
-    margin: 16, padding: 24, backgroundColor: '#2D6A4F',
-    borderRadius: 20, alignItems: 'center', gap: 4,
+    margin: spacing.md,
+    padding: spacing.xl,
+    backgroundColor: colors.primary,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    gap: 4,
+    ...shadow.card,
   },
   balanceLabel: { color: '#B7E4C7', fontSize: 14, fontWeight: '600' },
   balanceAmount: { color: '#FFFFFF', fontSize: 48, fontWeight: '900' },
   balanceSub: { color: '#B7E4C7', fontSize: 13 },
-  sectionTitle: { paddingHorizontal: 16, paddingBottom: 8, fontSize: 16, fontWeight: '700', color: '#1A1A2E' },
-  list: { paddingHorizontal: 16, gap: 8, flexGrow: 1 },
+  sectionTitle: { paddingHorizontal: spacing.md, paddingBottom: 8, fontSize: 16, fontWeight: '800', color: colors.text },
+  list: { paddingHorizontal: spacing.md, gap: spacing.sm, flexGrow: 1 },
   entry: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+    backgroundColor: colors.surface,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
   },
   entryLeft: { gap: 4, flex: 1 },
-  merchantName: { fontSize: 15, fontWeight: '600', color: '#1A1A2E' },
-  entryDate: { fontSize: 12, color: '#6C757D' },
+  merchantName: { fontSize: 15, fontWeight: '700', color: colors.text },
+  entryDate: { fontSize: 12, color: colors.textMuted },
   badge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
   badgeText: { color: '#FFFFFF', fontWeight: '800', fontSize: 13 },
   emptyContainer: { flex: 1, alignItems: 'center', paddingTop: 64, gap: 8 },
   emptyEmoji: { fontSize: 40 },
-  empty: { fontSize: 16, fontWeight: '600', color: '#1A1A2E' },
-  emptySub: { fontSize: 14, color: '#6C757D', textAlign: 'center', paddingHorizontal: 32 },
+  empty: { fontSize: 16, fontWeight: '700', color: colors.text },
+  emptySub: { fontSize: 14, color: colors.textMuted, textAlign: 'center', paddingHorizontal: 32 },
 });

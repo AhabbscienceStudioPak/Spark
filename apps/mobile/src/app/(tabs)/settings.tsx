@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 import {
   View, Text, StyleSheet, Switch, Pressable, ScrollView, Alert,
 } from 'react-native';
@@ -6,8 +7,9 @@ import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as SQLite from 'expo-sqlite';
 import { useAuthStore } from '../../store/auth.store';
+import { colors, radius, shadow, spacing, typography } from '../../theme/tokens';
 
-export default function SettingsScreen(): JSX.Element {
+export default function SettingsScreen(): ReactElement {
   const [maxOffersPerDay, setMaxOffersPerDay] = useState(5);
   const [doNotDisturb, setDoNotDisturb] = useState(false);
   const [language, setLanguage] = useState<'de' | 'en'>('de');
@@ -20,13 +22,27 @@ export default function SettingsScreen(): JSX.Element {
     const prefs = await SecureStore.getItemAsync('consumer_preferences');
     if (prefs) {
       const parsed = JSON.parse(prefs) as {
-        maxOffersPerDay: number; doNotDisturb: boolean;
-        language: 'de' | 'en'; pushEnabled: boolean;
+        maxOffersPerDay: number | string;
+        doNotDisturb: boolean | string;
+        language: 'de' | 'en' | string;
+        pushEnabled: boolean | string;
       };
-      setMaxOffersPerDay(parsed.maxOffersPerDay ?? 5);
-      setDoNotDisturb(parsed.doNotDisturb ?? false);
-      setLanguage(parsed.language ?? 'de');
-      setPushEnabled(parsed.pushEnabled ?? true);
+      const parsedMax =
+        typeof parsed.maxOffersPerDay === 'string'
+          ? Number.parseInt(parsed.maxOffersPerDay, 10)
+          : parsed.maxOffersPerDay;
+      const normalizedMax = Number.isFinite(parsedMax) ? Math.min(10, Math.max(1, parsedMax)) : 5;
+
+      const normalizeBool = (value: boolean | string | undefined, fallback: boolean): boolean => {
+        if (typeof value === 'boolean') return value;
+        if (typeof value === 'string') return value.toLowerCase() === 'true';
+        return fallback;
+      };
+
+      setMaxOffersPerDay(normalizedMax);
+      setDoNotDisturb(normalizeBool(parsed.doNotDisturb, false));
+      setLanguage(parsed.language === 'en' ? 'en' : 'de');
+      setPushEnabled(normalizeBool(parsed.pushEnabled, true));
     }
   };
 
@@ -206,33 +222,37 @@ export default function SettingsScreen(): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FA' },
-  content: { padding: 16, gap: 16, paddingBottom: 48 },
-  title: { fontSize: 28, fontWeight: '800', color: '#1A1A2E' },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.md, gap: spacing.md, paddingBottom: 48 },
+  title: { fontSize: typography.title, fontWeight: '800', color: colors.text },
   section: {
-    backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, gap: 12,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06, shadowRadius: 4, elevation: 2,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
   },
-  sectionTitle: { fontSize: 13, fontWeight: '700', color: '#6C757D', textTransform: 'uppercase', letterSpacing: 0.5 },
+  sectionTitle: { fontSize: 13, fontWeight: '800', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   rowLeft: { flex: 1, gap: 2 },
-  rowLabel: { fontSize: 16, color: '#1A1A2E', fontWeight: '500' },
-  rowSub: { fontSize: 12, color: '#6C757D' },
+  rowLabel: { fontSize: 16, color: colors.text, fontWeight: '600' },
+  rowSub: { fontSize: 12, color: colors.textMuted },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  stepBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#E9ECEF', alignItems: 'center', justifyContent: 'center' },
-  stepBtnText: { fontSize: 18, color: '#1A1A2E', fontWeight: '700' },
-  stepValue: { fontSize: 18, fontWeight: '700', color: '#1A1A2E', minWidth: 24, textAlign: 'center' },
+  stepBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.surfaceMuted, alignItems: 'center', justifyContent: 'center' },
+  stepBtnText: { fontSize: 18, color: colors.text, fontWeight: '800' },
+  stepValue: { fontSize: 18, fontWeight: '800', color: colors.text, minWidth: 24, textAlign: 'center' },
   langToggle: { flexDirection: 'row', gap: 8 },
-  langBtn: { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8, backgroundColor: '#E9ECEF' },
-  langBtnActive: { backgroundColor: '#2D6A4F' },
-  langText: { fontSize: 14, fontWeight: '700', color: '#6C757D' },
+  langBtn: { paddingHorizontal: 16, paddingVertical: 6, borderRadius: 8, backgroundColor: colors.surfaceMuted },
+  langBtnActive: { backgroundColor: colors.primary },
+  langText: { fontSize: 14, fontWeight: '700', color: colors.textMuted },
   langTextActive: { color: '#FFFFFF' },
-  privacyNote: { fontSize: 13, color: '#6C757D', lineHeight: 20 },
-  actionBtn: { backgroundColor: '#E9ECEF', borderRadius: 10, padding: 14, alignItems: 'center' },
-  dangerBtn: { backgroundColor: '#FFF0F0' },
-  actionBtnText: { fontSize: 15, fontWeight: '600', color: '#1A1A2E' },
-  dangerText: { color: '#E63946' },
+  privacyNote: { fontSize: 13, color: colors.textMuted, lineHeight: 20 },
+  actionBtn: { backgroundColor: colors.surfaceMuted, borderRadius: radius.sm, padding: 14, alignItems: 'center' },
+  dangerBtn: { backgroundColor: colors.dangerSoft },
+  actionBtnText: { fontSize: 15, fontWeight: '700', color: colors.text },
+  dangerText: { color: colors.danger },
   badge: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3 },
-  version: { textAlign: 'center', color: '#ADB5BD', fontSize: 12 },
+  version: { textAlign: 'center', color: colors.textMuted, fontSize: 12 },
 });

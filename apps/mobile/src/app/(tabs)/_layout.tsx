@@ -1,18 +1,30 @@
 import { Tabs } from 'expo-router';
+import type { ReactElement } from 'react';
 import { Text } from 'react-native';
+import { colors } from '../../theme/tokens';
 
-function TabIcon({ emoji }: { emoji: string }): JSX.Element {
+function TabIcon({ emoji }: { emoji: string }): ReactElement {
   return <Text style={{ fontSize: 20 }}>{emoji}</Text>;
 }
 
-export default function TabLayout(): JSX.Element {
+export default function TabLayout(): ReactElement {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#2D6A4F',
-        tabBarInactiveTintColor: '#ADB5BD',
-        tabBarStyle: { paddingBottom: 4 },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          height: 64,
+          paddingTop: 6,
+          paddingBottom: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '700',
+        },
       }}
     >
       <Tabs.Screen

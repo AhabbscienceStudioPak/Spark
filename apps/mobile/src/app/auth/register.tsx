@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import type { ReactElement } from 'react';
 import {
   View, Text, TextInput, Pressable, StyleSheet,
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuthStore } from '../../store/auth.store';
+import { colors, radius, shadow, spacing } from '../../theme/tokens';
 
-export default function RegisterScreen(): JSX.Element {
+export default function RegisterScreen(): ReactElement {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -61,7 +63,7 @@ export default function RegisterScreen(): JSX.Element {
               autoCapitalize="words"
               autoComplete="name"
               placeholder="e.g. Mia Schmidt"
-              placeholderTextColor="#ADB5BD"
+              placeholderTextColor={colors.textMuted}
               accessibilityLabel="Display name"
             />
           </Field>
@@ -75,7 +77,7 @@ export default function RegisterScreen(): JSX.Element {
               autoCapitalize="none"
               autoComplete="email"
               placeholder="you@example.com"
-              placeholderTextColor="#ADB5BD"
+              placeholderTextColor={colors.textMuted}
               accessibilityLabel="Email address"
             />
           </Field>
@@ -88,7 +90,7 @@ export default function RegisterScreen(): JSX.Element {
               secureTextEntry
               autoComplete="new-password"
               placeholder="••••••••"
-              placeholderTextColor="#ADB5BD"
+              placeholderTextColor={colors.textMuted}
               accessibilityLabel="Password"
             />
           </Field>
@@ -101,7 +103,7 @@ export default function RegisterScreen(): JSX.Element {
               secureTextEntry
               autoComplete="new-password"
               placeholder="••••••••"
-              placeholderTextColor="#ADB5BD"
+              placeholderTextColor={colors.textMuted}
               accessibilityLabel="Confirm password"
               onSubmitEditing={handleRegister}
               returnKeyType="go"
@@ -141,31 +143,35 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#F8F9FA' },
-  container: { flexGrow: 1, padding: 24, gap: 20 },
+  flex: { flex: 1, backgroundColor: colors.bg },
+  container: { flexGrow: 1, padding: spacing.xl, gap: spacing.lg },
   backBtn: { paddingVertical: 8 },
-  backText: { color: '#2D6A4F', fontWeight: '600', fontSize: 15 },
+  backText: { color: colors.primary, fontWeight: '700', fontSize: 15 },
   form: {
-    backgroundColor: '#FFFFFF', borderRadius: 20, padding: 24, gap: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.xl,
+    gap: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
   },
-  formTitle: { fontSize: 24, fontWeight: '800', color: '#1A1A2E' },
-  formSub: { fontSize: 14, color: '#6C757D', marginTop: -8 },
-  errorBox: { backgroundColor: '#FFF0F0', borderRadius: 10, padding: 12 },
-  errorText: { color: '#E63946', fontSize: 14, fontWeight: '500' },
-  label: { fontSize: 14, fontWeight: '600', color: '#495057' },
-  hint: { fontWeight: '400', color: '#ADB5BD' },
+  formTitle: { fontSize: 24, fontWeight: '800', color: colors.text },
+  formSub: { fontSize: 14, color: colors.textMuted, marginTop: -8 },
+  errorBox: { backgroundColor: colors.dangerSoft, borderRadius: radius.sm, padding: 12 },
+  errorText: { color: colors.danger, fontSize: 14, fontWeight: '600' },
+  label: { fontSize: 14, fontWeight: '700', color: colors.text },
+  hint: { fontWeight: '400', color: colors.textMuted },
   input: {
-    borderWidth: 1.5, borderColor: '#DEE2E6', borderRadius: 12,
-    padding: 14, fontSize: 16, color: '#1A1A2E', backgroundColor: '#FAFAFA',
+    borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.sm,
+    padding: 14, fontSize: 16, color: colors.text, backgroundColor: colors.surfaceMuted,
   },
-  inputError: { borderColor: '#E63946' },
+  inputError: { borderColor: colors.danger },
   registerBtn: {
-    backgroundColor: '#2D6A4F', borderRadius: 14, padding: 16,
+    backgroundColor: colors.primary, borderRadius: radius.md, padding: 16,
     alignItems: 'center', marginTop: 4,
   },
   registerBtnText: { color: '#FFFFFF', fontSize: 17, fontWeight: '800' },
   disabled: { opacity: 0.5 },
-  terms: { fontSize: 12, color: '#ADB5BD', textAlign: 'center', lineHeight: 18 },
+  terms: { fontSize: 12, color: colors.textMuted, textAlign: 'center', lineHeight: 18 },
 });

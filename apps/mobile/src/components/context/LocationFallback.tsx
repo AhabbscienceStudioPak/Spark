@@ -2,7 +2,9 @@
  * Req 2.5: Manual city/neighborhood selection when location permission is denied.
  */
 import React, { useState } from 'react';
+import type { ReactElement } from 'react';
 import { View, Text, StyleSheet, Pressable, TextInput, FlatList } from 'react-native';
+import { colors, radius, shadow, spacing } from '../../theme/tokens';
 
 const SUPPORTED_CITIES = [
   { code: 'stuttgart', name: 'Stuttgart', lat: 48.7758, lng: 9.1829 },
@@ -16,7 +18,7 @@ interface Props {
   onCitySelected: (city: { code: string; name: string; lat: number; lng: number }) => void;
 }
 
-export function LocationFallback({ onCitySelected }: Props): JSX.Element {
+export function LocationFallback({ onCitySelected }: Props): ReactElement {
   const [search, setSearch] = useState('');
 
   const filtered = SUPPORTED_CITIES.filter((c) =>
@@ -58,18 +60,25 @@ export function LocationFallback({ onCitySelected }: Props): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 24, gap: 16 },
-  title: { fontSize: 22, fontWeight: '800', color: '#1A1A2E' },
-  subtitle: { fontSize: 14, color: '#6C757D', lineHeight: 22 },
+  container: { padding: spacing.xl, gap: spacing.md },
+  title: { fontSize: 24, fontWeight: '800', color: colors.text },
+  subtitle: { fontSize: 14, color: colors.textMuted, lineHeight: 22 },
   searchInput: {
-    backgroundColor: '#FFFFFF', borderRadius: 12, padding: 14,
-    fontSize: 15, borderWidth: 1, borderColor: '#DEE2E6',
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: 14,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   cityItem: {
-    backgroundColor: '#FFFFFF', borderRadius: 12, padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
     marginBottom: 8,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 3, elevation: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadow.card,
   },
-  cityName: { fontSize: 16, fontWeight: '600', color: '#1A1A2E' },
+  cityName: { fontSize: 16, fontWeight: '700', color: colors.text },
 });

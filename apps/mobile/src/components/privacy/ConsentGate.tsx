@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import type { ReactElement } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { colors, radius, spacing } from '../../theme/tokens';
 
 interface ConsentGateProps {
   children: React.ReactNode;
@@ -10,7 +12,7 @@ interface ConsentGateProps {
  * GDPR consent gate — blocks app usage until explicit consent is given.
  * Consent state is stored securely on-device.
  */
-export function ConsentGate({ children }: ConsentGateProps): JSX.Element {
+export function ConsentGate({ children }: ConsentGateProps): ReactElement {
   const [consentGiven, setConsentGiven] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -47,10 +49,10 @@ export function ConsentGate({ children }: ConsentGateProps): JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  loading: { flex: 1, backgroundColor: '#FFFFFF' },
-  container: { flex: 1, justifyContent: 'center', padding: 32, backgroundColor: '#FFFFFF', gap: 24 },
-  title: { fontSize: 28, fontWeight: '800', color: '#1A1A2E' },
-  body: { fontSize: 16, color: '#495057', lineHeight: 26 },
-  button: { backgroundColor: '#2D6A4F', borderRadius: 12, padding: 18, alignItems: 'center' },
+  loading: { flex: 1, backgroundColor: colors.surface },
+  container: { flex: 1, justifyContent: 'center', padding: 32, backgroundColor: colors.bg, gap: spacing.xl },
+  title: { fontSize: 28, fontWeight: '800', color: colors.text },
+  body: { fontSize: 16, color: colors.text, lineHeight: 26 },
+  button: { backgroundColor: colors.primary, borderRadius: radius.sm, padding: 18, alignItems: 'center' },
   buttonText: { color: '#FFFFFF', fontSize: 18, fontWeight: '700' },
 });
